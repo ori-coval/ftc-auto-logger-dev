@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+android {
+    compileSdk 33
+    namespace 'ori.coval.ftcautologger'
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 33
+    }
+}
+
+dependencies {
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            mavenAar(MavenPublication) {
+                groupId    = project.group           // com.github.ori-coval
+                artifactId = 'FtcWpiLogger'
+                version    = project.version         // e.g. 1.0.0
+
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar") {
+                    builtBy tasks.named("bundleReleaseAar")
+                }
+
+                pom {
+                    name        = 'FtcWpiLogger'
+                    description = 'FTC WPI Logger Android library'
+                    url         = 'https://github.com/ori-coval/ftc-auto-logger'
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url  = 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id    = 'ori-coval'
+                            name  = 'Ori Coval'
+                            email = 'you@example.com'
+                        }
+                    }
+                    scm {
+                        connection          = 'scm:git:git://github.com/ori-coval/ftc-auto-logger.git'
+                        developerConnection = 'scm:git:ssh://github.com:ori-coval/ftc-auto-logger.git'
+                        url                 = 'https://github.com/ori-coval/ftc-auto-logger'
+                    }
+                }
+            }
+        }
+    }
+
+    // Ensure bundleReleaseAar runs before publish to local
+    tasks.named("publishMavenAarPublicationToMavenLocal") {
+        dependsOn tasks.named("bundleReleaseAar")
+    }
+}
